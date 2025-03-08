@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Code Converter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+            position: relative;
+            display: inline-block;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: #3498db;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .converter-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        select.form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select.form-control:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .code-input {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .code-input input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .code-input .file-label {
+            position: relative;
+            padding: 15px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 6px;
+            text-align: center;
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+
+        .code-input:hover .file-label {
+            border-color: #3498db;
+            color: #3498db;
+        }
+
+        .code-input .file-label span {
+            display: block;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        textarea.code-area {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 2px solid #ecf0f1;
+            border-radius: 6px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+            max-width: 250px;
+            margin: 20px auto 0;
+            display: block;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        .result-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+        }
+
+        .result-box pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin: 15px 0;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .convert-btn {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Code Converter</h1>
+            <p>Convert your code between different programming languages effortlessly</p>
+        </div>
+
+        <div class="converter-box">
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="input-group">
+                    <!-- Left Column -->
+                    <div>
+                        <div class="form-group">
+                            <label>Source Language</label>
+                            <select class="form-control" name="source_lang" required>
+                                {% for lang in languages %}
+                                    <option value="{{ lang }}">{{ lang }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="code-input">
+                            <input type="file" name="code_file" accept=".py,.js,.java,.cpp,.cs,.rb,.go,.php,.kt,.swift">
+                            <div class="file-label">
+                                Drag & drop file here or click to upload<br>
+                                <span>Supported formats: .py, .js, .java, .cpp, etc.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div>
+                        <div class="form-group">
+                            <label>Target Language</label>
+                            <select class="form-control" name="target_lang" required>
+                                {% for lang in languages %}
+                                    <option value="{{ lang }}">{{ lang }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <textarea class="code-area" name="code_text" placeholder="Or paste your code here...">{{ request.form.get('code_text', '') }}</textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="convert-btn">Convert Code</button>
+            </form>
+        </div>
+
+        {% if translated_code %}
+            <div class="result-box">
+                <h3>Converted Code:</h3>
+                <pre>{{ translated_code }}</pre>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
